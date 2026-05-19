@@ -94,58 +94,63 @@
 
     // ===== TEMPERATURA E COR DE FUNDO =====
     function atualizarTemperatura() {
-      const apiKey = 'f3c80e91e5ab42979c7134b41ab3a9e7';
-      
-      // Tenta usar geolocation se disponível
+      // Usa geolocation se disponível para buscar coordenadas
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=pt_br&appid=${apiKey}`;
-            
-            fetch(url)
-              .then(response => response.json())
-              .then(dados => {
-                const temperatura = Math.round(dados.main.temp);
-                const cidade = dados.name;
-                aplicarTemperatura(temperatura, cidade);
-              })
-              .catch(erro => {
-                console.error('Erro ao buscar temperatura por geolocalização:', erro);
-                buscarTemperaturaDefaultPorCidade();
-              });
+          (posicao) => {
+            buscarTemperaturaOpenMeteo(posicao.coords.latitude, posicao.coords.longitude);
           },
           (erro) => {
             console.error('Geolocalização não permitida:', erro);
-            buscarTemperaturaDefaultPorCidade();
+            buscarTemperaturaPadrao();
           }
         );
       } else {
-        buscarTemperaturaDefaultPorCidade();
+        buscarTemperaturaPadrao();
       }
     }
 
-    function buscarTemperaturaDefaultPorCidade() {
-      const apiKey = 'f3c80e91e5ab42979c7134b41ab3a9e7';
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=São Paulo,BR&units=metric&lang=pt_br&appid=${apiKey}`;
-      
+    function buscarTemperaturaOpenMeteo(lat, lon) {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=celsius`;
       fetch(url)
         .then(response => response.json())
         .then(dados => {
-          const temperatura = Math.round(dados.main.temp);
-          const cidade = dados.name;
-          aplicarTemperatura(temperatura, cidade);
+          if (dados && dados.current_weather && typeof dados.current_weather.temperature === 'number') {
+            const temperatura = Math.round(dados.current_weather.temperature);
+            aplicarTemperatura(temperatura, 'Sua cidade');
+          } else {
+            console.error('Dados de clima inválidos:', dados);
+            buscarTemperaturaPadrao();
+          }
         })
         .catch(erro => {
-          console.error('Erro ao buscar temperatura padrão:', erro);
-          // Usa temperatura aleatória como fallback
+          console.error('Erro ao buscar temperatura Open-Meteo:', erro);
+          buscarTemperaturaPadrao();
+        });
+    }
+
+    function buscarTemperaturaPadrao() {
+      const lat = -23.55052; // São Paulo
+      const lon = -46.633308;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=celsius`;
+      fetch(url)
+        .then(response => response.json())
+        .then(dados => {
+          if (dados && dados.current_weather && typeof dados.current_weather.temperature === 'number') {
+            const temperatura = Math.round(dados.current_weather.temperature);
+            aplicarTemperatura(temperatura, 'São Paulo');
+          } else {
+            console.error('Dados de clima padrão inválidos:', dados);
+            aplicarTemperaturaFallback();
+          }
+        })
+        .catch(erro => {
+          console.error('Erro ao buscar temperatura padrão Open-Meteo:', erro);
           aplicarTemperaturaFallback();
         });
     }
 
     function aplicarTemperaturaFallback() {
-      // Se tudo falhar, usa uma temperatura aleatória para demonstrar
       const temperaturas = [10, 20, 25, 32];
       const temperatura = temperaturas[Math.floor(Math.random() * temperaturas.length)];
       aplicarTemperatura(temperatura, 'Festa Junina');
@@ -155,43 +160,48 @@
       const homeSection = document.querySelector('.home');
       if (!homeSection) return;
 
-      let classe = '';
+      let cor = '';
       let descricao = '';
-      
+      let overlay = '';
+
       if (temperatura < 15) {
-        classe = 'temp-frio';
+        cor = 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)';
+        overlay = 'linear-gradient(to bottom, rgba(52,152,219,0.35), rgba(41,128,185,0.25), rgba(255,120,0,0.2))';
         descricao = '❄️ Frio';
       } else if (temperatura < 22) {
-        classe = 'temp-morno';
+        cor = 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)';
+        overlay = 'linear-gradient(to bottom, rgba(243,156,18,0.35), rgba(230,126,34,0.25), rgba(255,120,0,0.2))';
         descricao = '🌤️ Morno';
       } else if (temperatura < 28) {
-        classe = 'temp-quente';
+        cor = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+        overlay = 'linear-gradient(to bottom, rgba(231,76,60,0.35), rgba(192,57,43,0.25), rgba(255,120,0,0.2))';
         descricao = '☀️ Quente';
       } else {
-        classe = 'temp-muito-quente';
+        cor = 'linear-gradient(135deg, #ff6347 0%, #dc143c 100%)';
+        overlay = 'linear-gradient(to bottom, rgba(255,99,71,0.45), rgba(220,20,60,0.35), rgba(255,120,0,0.25))';
         descricao = '🔥 Muito Quente';
       }
-      
-      // Remove classes antigas e adiciona a nova
-      homeSection.classList.remove('temp-frio', 'temp-morno', 'temp-quente', 'temp-muito-quente');
-      homeSection.classList.add(classe);
-      
-      // Cria ou atualiza indicador no body para garantir que fica visível
+
+      homeSection.style.setProperty('background', cor, 'important');
+      homeSection.style.setProperty('background-size', 'cover', 'important');
+      homeSection.style.setProperty('background-position', 'center', 'important');
+      const overlayElement = homeSection.querySelector('.overlay');
+      if (overlayElement) {
+        overlayElement.style.setProperty('background', overlay, 'important');
+      }
+
       let indicador = document.querySelector('.temperatura-indicator');
       if (!indicador) {
         indicador = document.createElement('div');
         indicador.className = 'temperatura-indicator';
         document.body.appendChild(indicador);
       }
-      
       indicador.textContent = `${descricao} - ${temperatura}°C - ${cidade}`;
-      console.log(`Temperatura aplicada: ${descricao} (${temperatura}°C) - ${classe}`);
+      console.log(`Temperatura aplicada: ${descricao} (${temperatura}°C)`);
     }
 
-    // Iniciar ao carregar a página
     document.addEventListener('DOMContentLoaded', () => {
       atualizarTemperatura();
-      // Atualiza a cada 10 minutos
       setInterval(atualizarTemperatura, 600000);
     });
   </script>
