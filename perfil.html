@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Perfil - Arraial Connect</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  >
+</head>
+
+<body>
+
+  <section class="perfil-page">
+
+    <!-- TOPO -->
+
+    <div class="perfil-topo">
+
+      <h1>Seu Perfil</h1>
+
+    </div>
+
+    <div class="category-menu">
+      <button class="category-button active" data-section="favoritas">Favoritas</button>
+      <button class="category-button" data-section="proximas">Próximas</button>
+      <button class="category-button" data-section="convidadas">Convidadas</button>
+    </div>
+
+    <!-- PERFIL -->
+
+    <div class="perfil-card">
+
+      <img
+        src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+        alt="Perfil"
+      >
+
+      <h2>Usuário Junino</h2>
+
+      <p>@usuariojunino</p>
+
+      <div class="perfil-info">
+
+        <div class="info-box">
+          <h3>12</h3>
+          <span>Festas</span>
+        </div>
+
+        <div class="info-box">
+          <h3>18</h3>
+          <span>Eventos</span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- SISTEMA DE MILHAS -->
+    <div class="milhas-section">
+      <div class="milhas-header">
+        <h3>🌽 Sistema de Milhas</h3>
+        <div class="milhas-count" id="milhasCount">0 Grãos</div>
+      </div>
+      <div class="milhas-info">
+        <p>💰 Ganhe 'Grãos de Milho' a cada compra!</p>
+        <p>🎩 Troque por um chapéu de palha digital exclusivo</p>
+        <p id="milhasStatus">Você tem 0 grãos acumulados</p>
+      </div>
+      <button class="milhas-button" onclick="adicionarMilhas(10)">+ Simular Compra (10 grãos)</button>
+    </div>
+
+    <!-- CORREIO ELEGANTE -->
+    <div class="correio-section">
+      <div class="correio-header">
+        <h3>💌 Correio Elegante com IA</h3>
+      </div>
+      <div class="cantada-box" id="cantadaBox">Clique em "Gerar Cantada" para receber uma mensagem caipira especial...</div>
+      <div class="correio-buttons">
+        <button class="correio-btn btn-gerar" onclick="gerarCantada()">✨ Gerar Cantada</button>
+        <button class="correio-btn btn-copiar" onclick="copiarCantada()">📋 Copiar</button>
+      </div>
+    </div>
+
+    <!-- FAVORITAS -->
+
+    <div class="section" id="favoritas">
+      <div class="section-title">
+        <h2>🔥 Festas Favoritas</h2>
+      </div>
+
+      <div class="mini-card">
+        <div class="left-mini">
+          <div class="fire">🔥</div>
+          <div>
+            <h3>Arraial da Roça</h3>
+            <p>22 de Junho</p>
+          </div>
+        </div>
+        <i class="fa-solid fa-heart"></i>
+      </div>
+
+      <div class="mini-card red">
+        <div class="left-mini">
+          <div class="fire">🔥</div>
+          <div>
+            <h3>São João da Praça</h3>
+            <p>25 de Junho</p>
+          </div>
+        </div>
+        <i class="fa-solid fa-heart"></i>
+      </div>
+    </div>
+
+    <!-- PRÓXIMAS -->
+
+    <div class="section" id="proximas" style="display: none;">
+      <div class="section-title">
+        <h2>📅 Próximas Festas</h2>
+      </div>
+
+      <div class="mini-card">
+        <div class="left-mini">
+          <div class="fire">🔥</div>
+          <div>
+            <h3>Noite de São João</h3>
+            <p>28 de Junho</p>
+          </div>
+        </div>
+        <i class="fa-solid fa-calendar"></i>
+      </div>
+    </div>
+
+    <!-- CONVIDADAS -->
+
+    <div class="section" id="convidadas" style="display: none;">
+      <div class="section-title">
+        <h2>🎉 Festas Convidadas</h2>
+      </div>
+
+      <div class="mini-card">
+        <div class="left-mini">
+          <div class="fire">🔥</div>
+          <div>
+            <h3>Festa Junina da Praça</h3>
+            <p>25 de Junho</p>
+          </div>
+        </div>
+        <i class="fa-solid fa-envelope"></i>
+      </div>
+    </div>
+
+    <!-- MENU -->
+
+    <div class="bottom-menu">
+
+      <a href="index.html">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </a>
+
+      <a href="festas.html">
+        <i class="fa-solid fa-calendar"></i>
+        <span>Festas</span>
+      </a>
+
+      <a href="perfil.html" class="active">
+        <i class="fa-regular fa-user"></i>
+        <span>Perfil</span>
+      </a>
+
+    </div>
+
+  </section>
+
+  <script>
+    // ===== NAVEGAÇÃO DE SEÇÕES =====
+    document.querySelectorAll('.category-button').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.category-button').forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+
+        const section = button.getAttribute('data-section');
+        document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+        document.getElementById(section).style.display = 'block';
+      });
+    });
+
+    // ===== SISTEMA DE MILHAS =====
+    let milhasAcumuladas = localStorage.getItem('milhas') ? parseInt(localStorage.getItem('milhas')) : 0;
+
+    function atualizarMilhas() {
+      document.getElementById('milhasCount').textContent = milhasAcumuladas + ' Grãos';
+      document.getElementById('milhasStatus').textContent = `Você tem ${milhasAcumuladas} grãos acumulados`;
+      localStorage.setItem('milhas', milhasAcumuladas);
+    }
+
+    function adicionarMilhas(quantidade) {
+      milhasAcumuladas += quantidade;
+      atualizarMilhas();
+      alert(`✨ Compra realizada! Você ganhou ${quantidade} grãos de milho!`);
+    }
+
+    // Inicializar contagem de milhas
+    atualizarMilhas();
+
+    // ===== CORREIO ELEGANTE COM IA =====
+    const cantadasCaipiras = [
+      "Ocê é tão linda que até a lua fica com inveja quando você passa!",
+      "Seu sorriso é mais doce que melado de cana no tacho!",
+      "Ocê brilha mais que foguetório de festa junina!",
+      "Se amor fosse chuva, você seria a maior enxurrada do sertão!",
+      "Seu olhar é mais quente que sol a pino em junho!"
+    ];
+
+    let cantadaAtual = '';
+
+    function gerarCantada() {
+      const indice = Math.floor(Math.random() * cantadasCaipiras.length);
+      cantadaAtual = cantadasCaipiras[indice];
+      document.getElementById('cantadaBox').textContent = `"${cantadaAtual}"`;
+    }
+
+    function copiarCantada() {
+      if (cantadaAtual) {
+        navigator.clipboard.writeText(cantadaAtual).then(() => {
+          alert('💌 Cantada copiada com sucesso!');
+        });
+      } else {
+        alert('Gere uma cantada primeiro!');
+      }
+    }
+  </script>
+
+</body>
+</html>
